@@ -1,0 +1,19 @@
+/*
+ ============================================================================
+ Name        : LectureNotes.c
+ Author      : 
+ Version     :
+ Copyright   : Your copyright notice
+ Description : Hello World in C, Ansi-style
+ ============================================================================
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+	unsigned int test = 5U;
+	printf("Previous: %d Now: %d\n", -5, -5 << 5); /* prints !!!Hello World!!! */
+	return EXIT_SUCCESS;
+}
+

@@ -1,0 +1,46 @@
+09:05:23 **** Rebuild of configuration Debug for project LectureNotes ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\LectureNotes.o" "..\\src\\LectureNotes.c" 
+gcc -o LectureNotes.exe "src\\LectureNotes.o" 
+09:05:43 **** Incremental Build of configuration Debug for project LectureNotes ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\LectureNotes.o" "..\\src\\LectureNotes.c" 
+..\src\LectureNotes.c: In function 'main':
+..\src\LectureNotes.c:15:2: error: too many arguments to function 'puts'
+  puts("Previous: %d Now: %d\n", 16, 16 >> 2); /* prints !!!Hello World!!! */
+  ^~~~
+In file included from ..\src\LectureNotes.c:11:
+c:\mingw\include\stdio.h:710:41: note: declared here
+ _CRTIMP __cdecl __MINGW_NOTHROW  int    puts (const char *);
+                                         ^~~~
+09:05:55 **** Incremental Build of configuration Debug for project LectureNotes ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\LectureNotes.o" "..\\src\\LectureNotes.c" 
+gcc -o LectureNotes.exe "src\\LectureNotes.o" 
+09:06:07 **** Incremental Build of configuration Debug for project LectureNotes ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\LectureNotes.o" "..\\src\\LectureNotes.c" 
+gcc -o LectureNotes.exe "src\\LectureNotes.o" 
+09:06:14 **** Incremental Build of configuration Debug for project LectureNotes ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\LectureNotes.o" "..\\src\\LectureNotes.c" 
+gcc -o LectureNotes.exe "src\\LectureNotes.o" 
+09:06:29 **** Incremental Build of configuration Debug for project LectureNotes ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\LectureNotes.o" "..\\src\\LectureNotes.c" 
+gcc -o LectureNotes.exe "src\\LectureNotes.o" 
+09:06:50 **** Incremental Build of configuration Debug for project LectureNotes ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\LectureNotes.o" "..\\src\\LectureNotes.c" 
+gcc -o LectureNotes.exe "src\\LectureNotes.o" 
+09:24:57 **** Incremental Build of configuration Debug for project LectureNotes ****
+Info: Internal Builder is used for build
+gcc -O0 -g3 -Wall -c -fmessage-length=0 -o "src\\LectureNotes.o" "..\\src\\LectureNotes.c" 
+..\src\LectureNotes.c: In function 'main':
+..\src\LectureNotes.c:15:15: warning: unused variable 'test' [-Wunused-variable]
+  unsigned int test = 5U;
+               ^~~~
+gcc -o LectureNotes.exe "src\\LectureNotes.o" 
+Info: Nothing to build for datalab-handout
+Info: Nothing to build for LectureNotes
+Info: Nothing to build for datalab-handout
