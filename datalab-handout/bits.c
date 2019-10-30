@@ -184,7 +184,7 @@ int oddBits(void) {
  *   Rating: 1
  */
 int isTmin(int x) {
-  return 2;
+  return x>>15 & ~x<<1;
 }
 /* 
  * bitXor - x^y using only ~ and & 
@@ -194,7 +194,7 @@ int isTmin(int x) {
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  return ~((~x & y) & (x & ~y));
 }
 /* 
  * conditional - same as x ? y : z 
@@ -204,7 +204,7 @@ int bitXor(int x, int y) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  return (x & y) | (~x & z);
 }
 /* 
  * greatestBitPos - return a mask that marks the position of the
@@ -236,7 +236,7 @@ int divpwr2(int x, int n) {
  *   Rating: 3
  */
 int isNonNegative(int x) {
-  return 2;
+  return ~x>>15;
 }
 /*
  * satMul2 - multiplies by 2, saturating to Tmin or Tmax if overflow
@@ -258,7 +258,7 @@ int satMul2(int x) {
  *   Rating: 3
  */
 int isLess(int x, int y) {
-  return 2;
+  return (!y+x)>>15;
 }
 /* 
  * isAsciiDigit - return 1 if 0x30 <= x <= 0x39 (ASCII codes for characters '0' to '9')
@@ -294,7 +294,8 @@ int trueThreeFourths(int x)
  *   Rating: 4
  */
 int ilog2(int x) {
-  return 2;
+	int log = (x = x>>1) + log;
+	return log;
 }
 /* 
  * float_neg - Return bit-level equivalent of expression -f for
