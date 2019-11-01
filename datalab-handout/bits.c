@@ -174,7 +174,8 @@ NOTES:
  *   Rating: 2
  */
 int oddBits(void) {
-  return -1431655766;
+  //0xaa is the mask for odd bits so this sets each set of 16 bits to it
+  return 0xaa | 0xaa << 8 | 0xaa << 16 | 0xaa << 24;
 }
 /*
  * isTmin - returns 1 if x is the minimum, two's complement number,
@@ -184,7 +185,10 @@ int oddBits(void) {
  *   Rating: 1
  */
 int isTmin(int x) {
-  return (x>>31) & !(x<<1);
+  //if it is tmin then its opposite + 1 will overflow back to itself, leaving
+  //that inital part as 0, the only other case this works for is 0 so it checks
+  //that it is not 0 by doing !!x
+  return !(x^(~x+1)) & !!x;
 }
 /*
  * bitXor - x^y using only ~ and &
@@ -194,6 +198,7 @@ int isTmin(int x) {
  *   Rating: 1
  */
 int bitXor(int x, int y) {
+  //uses a nand equivalent to or for the two cases of xor by demorgans
   return ~(~(~x & y) & ~(x & ~y));
 }
 /*
@@ -204,8 +209,11 @@ int bitXor(int x, int y) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
+  //sets x to 1 or 0
   x = !!x;
+  //sets either all 1s or all 0s
   x = ~x +1;
+  //basic conditional by combining the conditional (or its opposite) with y or z
   return (x & y) | (~x & z);
 }
 /*
@@ -217,9 +225,16 @@ int conditional(int x, int y, int z) {
  *   Rating: 4
  */
 int greatestBitPos(int x) {
-  int res = 0;
-  res = res << 1 | (x = x >> 1);res = res << 1 | (x = x >> 1);res = res << 1 | (x = x >> 1);  res = res << 1 | (x = x >> 1);
-  return res;
+  // finds the mask by exponentially shifting x
+  int sign = x & 1 <<31;
+  x = x | (x >> 1);
+  x = x | (x >> 2);
+  x = x | (x >> 4);
+  x = x | (x >> 8);
+  x = x | (x >> 16);
+  //combines x with its bit shifted opposite and combines the sign
+  x = (~x >>1 & x )| sign;
+  return x;
 }
 /*
  * divpwr2 - Compute x/(2^n), for 0 <= n <= 30
@@ -230,7 +245,10 @@ int greatestBitPos(int x) {
  *   Rating: 2
  */
 int divpwr2(int x, int n){
-    return x >> n + !(x >> n-1 & 1);
+  //this offsets the rounding errors in bit shifting
+  int offset = (x >> 31) & (1<<n) + ~0;
+  //bit shifts with the offset
+  return (x + offset) >> n;
 }
 /*
  * isNonNegative - return 1 if x >= 0, return 0 otherwise
@@ -240,6 +258,7 @@ int divpwr2(int x, int n){
  *   Rating: 3
  */
 int isNonNegative(int x) {
+  // returns the opposite of the sign bit
   return !(x & 1 << 31);
 }
 /*
@@ -252,9 +271,16 @@ int isNonNegative(int x) {
  *   Rating: 3
  */
 int satMul2(int x) {
-  int over = x+x;
-  int max = !(x & 1 << 31) & 0x7FFFFFFF | 0x80000000;
-  return (!(over>>31)^!(x>>31) & max) | over;
+  //multiplies by 2
+  int mul = x+x;
+  // sets tMax
+  int tMax = ~(1 << 31);
+  // gets the sign of x
+  int sign = x >> 31;
+  // determines whether the multiplication overflowed by comparing the signs
+  int overflow = (mul ^ x) >> 31;
+  //returns the multiplied value if there is no overflow and tMax/tMin if there is
+  return (mul & ~overflow) | (overflow & (sign ^ tMax));
 }
 /*
  * isLess - if x < y  then return 1, else return 0
@@ -264,9 +290,17 @@ int satMul2(int x) {
  *   Rating: 3
  */
 int isLess(int x, int y) {
-  // return (!!(x & 1 << 31) & !(y & 1 << 31)) | (!((y>>31) & !(y<<1) & !((y>>31) & !(y<<1)) & !((y+~x) & 0x80000000));
-  // return  !(x & !y) & ((!!(x & 1 << 31) & !(y & 1 << 31)) | ((x>>31) & !(x<<1) & !((y>>31) & !(y<<1)) | !((y+~x) & 0x80000000)));
-  return 0;
+  // determines if they are the same
+  int same = !(x ^ y);
+  //determines if x is negative and y is positive
+  int sign = (x >> 31) & !(y >> 31);
+  //determines if y is negative and x is positive
+  int wrongsign = !(x >> 31) & (y >> 31);
+  // finds the sign of subtratction
+  int subtractSign = ((x+~y) >>31);
+  //returns whether they are not the same and the right sign and that x is less than y
+  //by subtraction of x - y
+  return  !same & !wrongsign & (sign | subtractSign);
 }
 /*
  * isAsciiDigit - return 1 if 0x30 <= x <= 0x39 (ASCII codes for characters '0' to '9')
@@ -278,7 +312,8 @@ int isLess(int x, int y) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  //returns if x <= '9' and x>= '0' using their masks
+  return ((~(0x39)+x) >>31 & 1) & ((0x30+~x) >>31 & 1);
 }
 /*
  * trueThreeFourths - multiplies by 3/4 rounding toward 0,
@@ -292,7 +327,19 @@ int isAsciiDigit(int x) {
  */
 int trueThreeFourths(int x)
 {
-  return 2;
+  // gets the sign of x
+  int sign = x >> 31;
+  //gets the remainder that will be lost by bit shifting twice
+  int remain = x&3;
+  //bit shifts x twice left (divides by four) and then adds that to two times that (bit shifted once)
+  x >>= 2; x = (x<<1)+x ;
+  // takes the value and adds the remainder based on the sign
+  return x+(remain+(remain<<1)+(sign&3)>>2);
+
+
+  // int sign = x >> 31;
+  // int remainder = x & 1;
+  // return x - (x >> 2) + remainder & sign;
 }
 /*
  * ilog2 - return floor(log base 2 of x), where x > 0
@@ -302,8 +349,16 @@ int trueThreeFourths(int x)
  *   Rating: 4
  */
 int ilog2(int x) {
+  //sets the return value and a temp value to 0
 	int log = 0;
-  // log = log + x =x >> 1;
+  int temp = 0;
+  //adds the boolean of whether x / 2 ^ (i^2-i) for i 4:0 to get the log
+  //right shifts x if each temp if true
+  log += temp = !!(x>>16) << 4; x>>=temp;//i = 4
+  log += temp = !!(x>>8) << 3; x>>=temp;//3
+  log += temp = !!(x>>4) << 2; x>>=temp;//2
+  log += temp = !!(x>>2) << 1; x>>=temp;//1
+  log += temp = !!(x>>1); x>>=temp;//0
 	return log;
 }
 /*
@@ -318,8 +373,11 @@ int ilog2(int x) {
  *   Rating: 2
  */
 unsigned float_neg(unsigned uf) {
-  if(!(uf & 1 << 31)) return uf ^ -1 >> 31;
- return ~uf;
+  //checks for NaN
+  if(!(((uf >> 23) & 0xFF) ^ 0xFF) && !!(uf << 9)) return uf;
+
+  //returns a negative version
+  return (1 << 31) ^ uf;
 }
 /*
  * float_i2f - Return bit-level equivalent of expression (float) x
@@ -331,7 +389,30 @@ unsigned float_neg(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_i2f(int x) {
-  return 2;
+  // gets t min
+  int tMin = 1 << 31;
+  //gets the sign bit only
+  int sign = x & tMin;
+  // flips x to its 2s complement if it is negative
+  if(sign) x = ~x + 1;
+  // sets the epsilon based on the bias
+  int e = 158;
+  // edge case for t min
+  if(x == tMin) return tMin | e << 23;
+  // edge case for 0
+  if(!x) return 0;
+  // shifts x to the left until it hits the sign bit
+  //decrements epsilon
+  while(!(x & tMin)) {
+      x <<= 1;
+      e--;
+  }
+  // calculates the fraction of the float by shifting x right 8 bits
+  int frac = (x & ~tMin) >> 8;
+  // increments the fraction if it is 0x80 and is > 0x7F or fraction is odd
+  if(x&0x80 &&((x&0x7F) > 0 || frac&1)) {frac++;}
+  //return each of the parts of the float
+  return sign + (e << 23)+frac;
 }
 /*
  * float_twice - Return bit-level equivalent of expression 2*f for
@@ -345,5 +426,13 @@ unsigned float_i2f(int x) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
-  return 2;
+  //returns uf if it is NaN or the fraction is too small or zero
+  if(!(uf & ~0)
+    || !(uf ^ (1<<31))
+    || !(((uf >> 23) & 0xff) ^ 0xff))
+      return uf;
+  // edge case for when the exponent is
+  if(!(((uf >> 23) & 0xff))) return ((uf & (1 << 31)) | (uf << 1));
+  //increments the exponent section of the float
+  return uf + (1 << 23);
 }
