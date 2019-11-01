@@ -335,6 +335,11 @@ int trueThreeFourths(int x)
   x >>= 2; x = (x<<1)+x ;
   // takes the value and adds the remainder based on the sign
   return x+(remain+(remain<<1)+(sign&3)>>2);
+
+
+  // int sign = x >> 31;
+  // int remainder = x & 1;
+  // return x - (x >> 2) + remainder & sign;
 }
 /*
  * ilog2 - return floor(log base 2 of x), where x > 0
